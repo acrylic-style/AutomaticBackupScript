@@ -23,7 +23,7 @@ data class CoreConfig(
 
         val config: CoreConfig = File(Main.configFile).let { file ->
             if (!file.parentFile.exists()) file.parentFile.mkdirs()
-            if (!file.exists()) file.writeText(json.encodeToString(BackupConfig()))
+            if (!file.exists()) file.writeText(json.encodeToString(CoreConfig()))
             json.decodeFromString(serializer(), file.readText())
         }
     }

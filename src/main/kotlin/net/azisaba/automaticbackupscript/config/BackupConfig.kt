@@ -59,4 +59,10 @@ data class BackupInfo(
     val path: String,
     val backupChildDirectoriesOnly: Boolean,
     val verbose: Int,
+    val dependOp: DependOp = DependOp.OR,
+    val depend: List<String> = listOf("# 'from' or 'to' in downloads"),
 )
+
+enum class DependOp {
+    OR, AND
+}

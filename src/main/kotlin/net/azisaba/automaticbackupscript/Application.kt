@@ -2,6 +2,7 @@ package net.azisaba.automaticbackupscript
 
 import net.azisaba.automaticbackupscript.config.BackupConfig
 import net.azisaba.automaticbackupscript.config.BackupInfo
+import net.azisaba.automaticbackupscript.config.DependOp
 import net.azisaba.automaticbackupscript.config.DownloadInfo
 import net.azisaba.automaticbackupscript.util.DurationLocale
 import net.azisaba.automaticbackupscript.util.ProcessExecutor
@@ -21,6 +22,8 @@ class Application {
     companion object {
         val logger: Logger = LoggerFactory.getLogger(Application::class.java)
     }
+
+    private val successfulDownloads = mutableListOf<String>()
 
     suspend fun backup() {
         val duration = measureTime {
@@ -81,6 +84,8 @@ class Application {
             logger.info("rsync process exited with code $exitCode")
         }
         if (exitCode == 0 || exitCode == 23 || exitCode == 24) {
+            successfulDownloads.add(info.from)
+            successfulDownloads.add(info.to)
             WebhookUtil.executeWebhook(
                 BackupConfig.config.webhookUrl,
                 ":inbox_tray: `${info.webhookName}`のダウンロードが完了(${duration.toLocaleString(DurationLocale.JAPANESE)})"
@@ -103,6 +108,15 @@ class Application {
     }
 
     private suspend fun backup(info: BackupInfo) {
+        val effectiveDepends = info.depend.filter { !it.startsWith("#") }
+        if ((info.dependOp == DependOp.OR && !effectiveDepends.any { successfulDownloads.contains(it) })
+            || (info.dependOp == DependOp.AND && !effectiveDepends.all { successfulDownloads.contains(it) })) {
+            WebhookUtil.executeWebhook(
+                BackupConfig.config.webhookUrl,
+                ":warning: `${info.webhookName}`のバックアップは条件を満たしていないため作成されません。"
+            )
+            return
+        }
         File.createTempFile("restic-password", ".tmp").use { tmp ->
             tmp.writeText(info.repoPassword)
             val command = mutableListOf<String>()

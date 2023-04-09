@@ -25,6 +25,11 @@ class Application {
 
     private val successfulDownloads = mutableListOf<String>()
 
+    /**
+     * Return true if unlocked; false otherwise
+     */
+    private fun ensureNotLocked(repo: File) = File(repo, "locks").listFiles().isNullOrEmpty()
+
     suspend fun backup() {
         val duration = measureTime {
             checkBinaries()
@@ -108,12 +113,19 @@ class Application {
     }
 
     private suspend fun backup(info: BackupInfo) {
+        if (!ensureNotLocked(File(info.repo))) {
+            WebhookUtil.executeWebhook(
+                BackupConfig.config.webhookUrl,
+                ":warning: `${info.webhookName}`のリポジトリは他のプロセスによってロックされているためバックアップは作成されません。"
+            )
+            return
+        }
         val effectiveDepends = info.depend.filter { !it.startsWith("#") }
         if ((info.dependOp == DependOp.OR && !effectiveDepends.any { successfulDownloads.contains(it) })
             || (info.dependOp == DependOp.AND && !effectiveDepends.all { successfulDownloads.contains(it) })) {
             WebhookUtil.executeWebhook(
                 BackupConfig.config.webhookUrl,
-                ":warning: `${info.webhookName}`のバックアップは条件を満たしていないため作成されません。"
+                ":warning: `${info.webhookName}`はデータのダウンロードに失敗しているためバックアップは作成されません。"
             )
             return
         }

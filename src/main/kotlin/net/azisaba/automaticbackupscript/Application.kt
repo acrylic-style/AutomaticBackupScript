@@ -73,6 +73,7 @@ class Application {
         if (info.verbose) command.add("-v")
         if (info.compress) command.add("-z")
         if (info.delete) command.add("--delete")
+        command.add("-L")
         if (info.rsh != null) {
             command.add("-e")
             command.add(info.rsh)

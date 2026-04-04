@@ -19,7 +19,7 @@ object Main {
         override val invokeWithoutSubcommand: Boolean = true
 
         override fun run() {
-            Main.configFile = coreConfigFile
+            configFile = coreConfigFile
         }
     }
 

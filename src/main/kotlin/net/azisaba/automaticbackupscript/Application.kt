@@ -117,7 +117,7 @@ class Application {
         if (!ensureNotLocked(File(info.repo))) {
             WebhookUtil.executeWebhook(
                 BackupConfig.config.webhookUrl,
-                ":warning: `${info.webhookName}`のリポジトリは他のプロセスによってロックされているためバックアップは作成されません。"
+                "${BackupConfig.config.prefixIfWarning}`${info.webhookName}`のリポジトリは他のプロセスによってロックされているためバックアップは作成されません。"
             )
             return
         }

@@ -1,9 +1,10 @@
 package net.azisaba.automaticbackupscript
 
-import kotlinx.cli.ArgParser
-import kotlinx.cli.ArgType
-import kotlinx.cli.ExperimentalCli
-import kotlinx.cli.default
+import com.github.ajalt.clikt.core.CoreCliktCommand
+import com.github.ajalt.clikt.core.main
+import com.github.ajalt.clikt.core.subcommands
+import com.github.ajalt.clikt.parameters.options.default
+import com.github.ajalt.clikt.parameters.options.option
 import net.azisaba.automaticbackupscript.command.BackupCommand
 
 object Main {
@@ -11,13 +12,21 @@ object Main {
         System.setProperty("org.slf4j.simpleLogger.logFile", "System.out")
     }
 
-    private val parser = ArgParser("AutomaticBackupScript")
-    val configFile by parser.option(ArgType.String, "config-file", "c", "Config file (core)").default("config/core.json")
+    var configFile: String = "config/core.json"
 
-    @OptIn(ExperimentalCli::class)
+    private class AutomaticBackupScriptCommand : CoreCliktCommand(name = "AutomaticBackupScript") {
+        private val coreConfigFile by option("--config-file", "-c", help = "Config file (core)").default("config/core.json")
+        override val invokeWithoutSubcommand: Boolean = true
+
+        override fun run() {
+            Main.configFile = coreConfigFile
+        }
+    }
+
     @JvmStatic
     fun main(args: Array<String>) {
-        parser.subcommands(BackupCommand)
-        parser.parse(args)
+        AutomaticBackupScriptCommand()
+            .subcommands(BackupCommand)
+            .main(args)
     }
 }

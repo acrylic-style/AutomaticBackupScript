@@ -1,7 +1,7 @@
 plugins {
-    kotlin("jvm") version "1.8.10"
-    kotlin("plugin.serialization") version "1.8.10"
-    id("com.github.johnrengelman.shadow") version "8.1.1"
+    kotlin("jvm") version "2.3.20"
+    kotlin("plugin.serialization") version "2.3.20"
+    id("com.gradleup.shadow") version "9.4.1"
 }
 
 group = "xyz.acrylicstyle.automaticbackupscript"
@@ -12,11 +12,11 @@ repositories {
 }
 
 dependencies {
-    implementation("org.jetbrains.kotlinx:kotlinx-cli:0.3.5")
-    implementation("io.ktor:ktor-client-core:2.2.4")
-    implementation("io.ktor:ktor-client-cio:2.2.4")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.0")
-    implementation("org.slf4j:slf4j-simple:2.0.0")
+    implementation("com.github.ajalt.clikt:clikt:5.1.0")
+    implementation("io.ktor:ktor-client-core:3.4.2")
+    implementation("io.ktor:ktor-client-cio:3.4.2")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.10.0")
+    implementation("org.slf4j:slf4j-simple:2.0.17")
     testImplementation(kotlin("test"))
 }
 
